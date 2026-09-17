@@ -1,13 +1,65 @@
+import json
 from pathlib import Path
+from typing import Protocol
+
+import faiss
+import numpy as np
 
 from src.ingestion.loaders import load_documents
+from src.ingestion.preprocess import TextChunk, chunk_text
 
 
-def build_index(input_dir: str = "data/raw", output_dir: str = "data/indexes") -> None:
-    """Scaffold entry point for building the vector index."""
+class Embedder(Protocol):
+    def embed(self, text: str) -> list[float]: ...
+
+
+def read_document(path: Path) -> str:
+    """Read the initial supported text formats using UTF-8."""
+    if path.suffix.lower() not in {".txt", ".md"}:
+        raise ValueError(f"Unsupported format for the first pipeline: {path.suffix}")
+    return path.read_text(encoding="utf-8")
+
+
+def build_chunks(input_dir: str, chunk_size: int, overlap: int) -> list[TextChunk]:
+    chunks: list[TextChunk] = []
+    for path in load_documents(input_dir):
+        if path.suffix.lower() not in {".txt", ".md"}:
+            continue
+        for index, text in enumerate(chunk_text(read_document(path), chunk_size, overlap)):
+            chunks.append(TextChunk(f"{path}:{index}", text, str(path), index))
+    return chunks
+
+
+def build_index(
+    input_dir: str = "data/raw",
+    output_dir: str = "data/indexes",
+    embedder: Embedder | None = None,
+    chunk_size: int = 800,
+    overlap: int = 120,
+) -> Path:
+    """Build a FAISS index and companion metadata file."""
+    if embedder is None:
+        from src.llm.embeddings import OllamaEmbeddingProvider
+
+        embedder = OllamaEmbeddingProvider()
+
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    documents = load_documents(input_dir)
-    print(f"Found {len(documents)} documents; connect LlamaIndex and FAISS here.")
+    chunks = build_chunks(input_dir, chunk_size, overlap)
+    if not chunks:
+        raise ValueError(f"No supported text documents found in {input_dir}")
+
+    vectors = np.asarray([embedder.embed(chunk.text) for chunk in chunks], dtype="float32")
+    faiss.normalize_L2(vectors)
+    index = faiss.IndexFlatIP(vectors.shape[1])
+    index.add(vectors)
+
+    index_path = Path(output_dir) / "documents.faiss"
+    metadata_path = Path(output_dir) / "documents.json"
+    faiss.write_index(index, str(index_path))
+    metadata_path.write_text(
+        json.dumps([chunk.__dict__ for chunk in chunks], indent=2), encoding="utf-8"
+    )
+    return index_path
 
 
 if __name__ == "__main__":

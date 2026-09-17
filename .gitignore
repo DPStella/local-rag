@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+LORP/
 
 # Local data and indexes
 data/raw/*

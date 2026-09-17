@@ -5,14 +5,30 @@ services:
       dockerfile: docker/ollama.Dockerfile
     ports:
       - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
   api:
     build:
       context: ..
       dockerfile: docker/api.Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      INDEX_PATH: /app/data/indexes/documents.faiss
+      METADATA_PATH: /app/data/indexes/documents.json
+      CHAT_MODEL: ${CHAT_MODEL:-qwen2.5:14b}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+    volumes:
+      - ../data:/app/data
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
   webui:
     build:
       context: ..
@@ -21,3 +37,6 @@ services:
       - "3000:8080"
     depends_on:
       - api
+
+volumes:
+  ollama_models:
