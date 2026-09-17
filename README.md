@@ -1,11 +1,11 @@
-# Enterprise RAG Agent Platform (ERAP)
+# Local Open RAG Platform (LORP)
 _Local‑first multi‑agent RAG platform built with Ollama, LangChain, LlamaIndex, and FAISS_
 
 ---
 
 ## Overview
 
-Enterprise RAG Agent Platform (ERAP) is a fully local, open‑source AI system designed to demonstrate modern enterprise AI platform engineering practices. It combines:
+Local Open RAG Platform (LORP) is a fully local, open‑source AI system designed to demonstrate modern enterprise AI platform engineering practices. It combines:
 
 - Ollama for local LLM serving
 - LlamaIndex for ingestion, chunking, embeddings, and retrieval
@@ -14,13 +14,13 @@ Enterprise RAG Agent Platform (ERAP) is a fully local, open‑source AI system d
 - FastAPI for serving a clean API layer
 - Open WebUI for a ChatGPT‑style interface
 
-ERAP is built as a realistic, production‑aligned starter project for hands‑on work with RAG, agents, and AI platform engineering.
+LORP is built as a realistic, production‑aligned starter project for hands‑on work with RAG, agents, and AI platform engineering.
 
 ---
 
 ## Goals
 
-ERAP helps you learn and demonstrate:
+LORP helps you learn and demonstrate:
 
 - Local LLM serving and model abstraction
 - Document ingestion and semantic chunking
