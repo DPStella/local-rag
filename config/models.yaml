@@ -1,0 +1,4 @@
+embedding_model: nomic-embed-text
+chat_model: qwen2.5:14b
+fallback_model: llama3.1:8b
+ollama_base_url: http://localhost:11434

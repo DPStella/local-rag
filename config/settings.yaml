@@ -1,1 +1,12 @@
+# ERAP configuration
+app:
+  name: ERAP
+  environment: local
 
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  indexes: data/indexes
+
+models_config: config/models.yaml
+agents_config: config/agents.yaml

@@ -1,0 +1,8 @@
+agents:
+  knowledge:
+    enabled: true
+    description: RAG-powered question answering agent
+  research:
+    enabled: false
+  report:
+    enabled: false

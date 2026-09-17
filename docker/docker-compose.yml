@@ -1,0 +1,23 @@
+services:
+  ollama:
+    build:
+      context: ..
+      dockerfile: docker/ollama.Dockerfile
+    ports:
+      - "11434:11434"
+  api:
+    build:
+      context: ..
+      dockerfile: docker/api.Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - ollama
+  webui:
+    build:
+      context: ..
+      dockerfile: docker/webui.Dockerfile
+    ports:
+      - "3000:8080"
+    depends_on:
+      - api
