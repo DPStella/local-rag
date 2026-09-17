@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from src.ingestion.build_index import build_index
@@ -27,3 +28,23 @@ def test_build_index_writes_faiss_and_metadata(tmp_path: Path):
 
     assert index_path.exists()
     assert (output / "documents.json").exists()
+
+
+def test_build_index_includes_explicit_source_file(tmp_path: Path):
+    raw = tmp_path / "raw"
+    output = tmp_path / "indexes"
+    source = tmp_path / "README.md"
+    raw.mkdir()
+    source.write_text("This project documents alpha retrieval.", encoding="utf-8")
+
+    build_index(
+        str(raw),
+        str(output),
+        FakeEmbedder(),
+        chunk_size=10,
+        overlap=2,
+        source_files=(source,),
+    )
+
+    metadata = json.loads((output / "documents.json").read_text(encoding="utf-8"))
+    assert any(item["source"].endswith("README.md") for item in metadata)

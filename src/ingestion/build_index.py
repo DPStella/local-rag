@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Protocol
+from typing import Iterable, Protocol
 
 import faiss
 import numpy as np
@@ -20,9 +20,23 @@ def read_document(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def build_chunks(input_dir: str, chunk_size: int, overlap: int) -> list[TextChunk]:
+def build_chunks(
+    input_dir: str,
+    chunk_size: int,
+    overlap: int,
+    source_files: Iterable[str | Path] | None = None,
+) -> list[TextChunk]:
     chunks: list[TextChunk] = []
-    for path in load_documents(input_dir):
+    paths = load_documents(input_dir)
+    if source_files:
+        paths.extend(Path(source) for source in source_files)
+
+    seen_paths: set[Path] = set()
+    for path in paths:
+        resolved_path = path.resolve()
+        if resolved_path in seen_paths:
+            continue
+        seen_paths.add(resolved_path)
         if path.suffix.lower() not in {".txt", ".md"}:
             continue
         for index, text in enumerate(chunk_text(read_document(path), chunk_size, overlap)):
@@ -36,6 +50,7 @@ def build_index(
     embedder: Embedder | None = None,
     chunk_size: int = 800,
     overlap: int = 120,
+    source_files: Iterable[str | Path] | None = None,
 ) -> Path:
     """Build a FAISS index and companion metadata file."""
     if embedder is None:
@@ -44,7 +59,7 @@ def build_index(
         embedder = OllamaEmbeddingProvider()
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    chunks = build_chunks(input_dir, chunk_size, overlap)
+    chunks = build_chunks(input_dir, chunk_size, overlap, source_files)
     if not chunks:
         raise ValueError(f"No supported text documents found in {input_dir}")
 
@@ -63,4 +78,4 @@ def build_index(
 
 
 if __name__ == "__main__":
-    build_index()
+    build_index(source_files=("README.md",))

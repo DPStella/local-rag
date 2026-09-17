@@ -36,6 +36,29 @@ LORP helps you learn and demonstrate:
 
 ## Architecture
 
+### Runtime Flow
+
+```mermaid
+flowchart LR
+    A[User question] --> B[API]
+    B --> C[RAG agent]
+    C --> D[Retrieve context]
+    D --> E[Local LLM]
+    E --> F[Grounded answer]
+
+    classDef input fill:#14314f,stroke:#60a5fa,stroke-width:2px,color:#e0f2fe;
+    classDef process fill:#123a2b,stroke:#34d399,stroke-width:2px,color:#d1fae5;
+    classDef retrieval fill:#3a2a17,stroke:#fbbf24,stroke-width:2px,color:#fef3c7;
+    classDef output fill:#2d1d45,stroke:#a78bfa,stroke-width:2px,color:#f3e8ff;
+
+    class A,B input;
+    class C process;
+    class D retrieval;
+    class E,F output;
+```
+
+For the complete API, agent, retrieval, model, and CLI flow, see the [detailed runtime view](docs/lorp_runtime_flow.md).
+
 ### LlamaIndex – Retrieval Layer
 
 - Document loaders (PDF, DOCX, HTML, Markdown)
@@ -143,6 +166,7 @@ pip install -r requirements.txt
 ```bash
 python src/ingestion/build_index.py
 ```
+The standard build indexes documents from `data/raw` and the project `README.md`.
 
 ### 4. Start the API server
 ```bash
@@ -168,7 +192,7 @@ Point Open WebUI to the API endpoint you just started.
 
 
 ## Retrieval
-- ERAP uses LlamaIndex + FAISS for retrieval:
+- LORP uses LlamaIndex + FAISS for retrieval:
 - Semantic chunking
 - Metadata‑rich document nodes
 - GPU‑accelerated vector search

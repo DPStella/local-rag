@@ -1,1 +1,1 @@
-"""ERAP application package."""
+"""Local Open RAG Platform (LORP) application package."""

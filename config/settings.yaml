@@ -1,6 +1,6 @@
-# ERAP configuration
+# LORP configuration
 app:
-  name: ERAP
+  name: LORP
   environment: local
 
 paths:
