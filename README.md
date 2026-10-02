@@ -94,54 +94,70 @@ For the complete API, agent, retrieval, model, and CLI flow, see the [detailed r
 
 ## Project Structure
 
-```text
-local-enterprise-rag-agent/
-├─ docker/
-│  ├─ docker-compose.yml
-│  ├─ ollama.Dockerfile
-│  ├─ api.Dockerfile
-│  ├─ webui.Dockerfile
-├─ config/
-│  ├─ settings.yaml
-│  ├─ models.yaml
-│  ├─ agents.yaml
-├─ data/
-│  ├─ raw/          # raw documents (excluded from Git)
-│  ├─ processed/    # cleaned text (excluded from Git)
-│  ├─ indexes/      # FAISS indexes (excluded from Git)
-├─ src/
-│  ├─ ingestion/
-│  │  ├─ loaders.py
-│  │  ├─ preprocess.py
-│  │  ├─ build_index.py
-│  ├─ retrieval/
-│  │  ├─ llamaindex_client.py
-│  │  ├─ retrievers.py
-│  ├─ llm/
-│  │  ├─ ollama_client.py
-│  │  ├─ embeddings.py
-│  ├─ agents/
-│  │  ├─ base_agent.py
-│  │  ├─ knowledge_agent.py   # first agent
-│  │  ├─ research_agent.py    # future
-│  │  ├─ report_agent.py      # future
-│  ├─ tools/
-│  │  ├─ retrieval_tool.py
-│  │  ├─ web_search_tool.py
-│  │  ├─ sql_tool.py
-│  │  ├─ file_tool.py
-│  ├─ api/
-│  │  ├─ server.py
-│  ├─ ui/
-│  │  ├─ webui_integration.md
-│  ├─ eval/
-│  │  ├─ rag_eval.py
-├─ tests/
-│  ├─ test_ingestion.py
-│  ├─ test_retrieval.py
-│  ├─ test_agent.py
-├─ .gitignore
-├─ README.md
+```mermaid
+---
+config:
+  treeView:
+    rowIndent: 24
+    paddingX: 8
+    paddingY: 6
+    lineThickness: 1.5
+    showIcons: false
+  themeVariables:
+    treeView:
+      labelFontSize: '16px'
+      labelColor: '#1f2937'
+      lineColor: '#64748b'
+      descriptionColor: '#475569'
+---
+treeView-beta
+└── 📦 local-enterprise-rag-agent/
+    ├── 🐳 docker/
+    │   ├── docker-compose.yml
+    │   ├── ollama.Dockerfile
+    │   ├── api.Dockerfile
+    │   └── webui.Dockerfile
+    ├── ⚙️ config/
+    │   ├── settings.yaml
+    │   ├── models.yaml
+    │   └── agents.yaml
+    ├── 💾 data/
+    │   ├── raw/ ## raw documents, excluded from Git
+    │   ├── processed/ ## cleaned text, excluded from Git
+    │   └── indexes/ ## FAISS indexes, excluded from Git
+    ├── 💻 src/
+    │   ├── ingestion/
+    │   │   ├── loaders.py
+    │   │   ├── preprocess.py
+    │   │   └── build_index.py
+    │   ├── 🔎 retrieval/
+    │   │   ├── llamaindex_client.py
+    │   │   └── retrievers.py
+    │   ├── llm/
+    │   │   ├── ollama_client.py
+    │   │   └── embeddings.py
+    │   ├── 🤖 agents/
+    │   │   ├── base_agent.py
+    │   │   ├── knowledge_agent.py ## first agent
+    │   │   ├── research_agent.py ## future
+    │   │   └── report_agent.py ## future
+    │   ├── 🧰 tools/
+    │   │   ├── retrieval_tool.py
+    │   │   ├── web_search_tool.py
+    │   │   ├── sql_tool.py
+    │   │   └── file_tool.py
+    │   ├── api/
+    │   │   └── server.py
+    │   ├── ui/
+    │   │   └── webui_integration.md
+    │   └── eval/
+    │       └── rag_eval.py
+    ├── 🧪 tests/
+    │   ├── test_ingestion.py
+    │   ├── test_retrieval.py
+    │   └── test_agent.py
+    ├── 🙈 .gitignore
+    └── 📝 README.md
 ```
 
 ## Getting Started
