@@ -7,6 +7,66 @@
 
 {% seo %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    <style>
+      .project-tree {
+        background: #fdfefb;
+        border: 1px solid #d7d8c8;
+        border-radius: 6px;
+        box-sizing: border-box;
+        color: #232323;
+        font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", monospace;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0 0 32px;
+        max-width: 100%;
+        overflow-x: auto;
+        padding: 12px 16px;
+      }
+
+      .project-tree details {
+        margin: 2px 0;
+      }
+
+      .project-tree summary {
+        border-radius: 4px;
+        color: #232323;
+        cursor: pointer;
+        padding: 2px 6px;
+      }
+
+      .project-tree summary::marker {
+        color: #af0011;
+      }
+
+      .project-tree summary:hover,
+      .project-tree summary:focus-visible {
+        background: #f5e8e8;
+        color: #af0011;
+      }
+
+      .project-tree details[open] > summary {
+        color: #820011;
+        font-weight: 700;
+      }
+
+      .project-tree summary code,
+      .project-tree > details > div code {
+        background: none;
+        border: 0;
+        color: inherit;
+        font: inherit;
+        padding: 0;
+      }
+
+      .project-tree details > div {
+        color: #665e5b;
+        padding: 0 6px;
+      }
+
+      .project-tree details details {
+        margin-left: 12px;
+      }
+    </style>
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
     <![endif]-->

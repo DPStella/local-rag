@@ -96,6 +96,7 @@ For the complete API, agent, retrieval, model, and CLI flow, see the [detailed r
 
 This interactive tree lists every tracked project file, excluding Git's internal metadata. Entries marked <em>planned</em> are placeholders or stubs, not active implementations.
 
+<div class="project-tree">
 <details open>
 <summary>📦 <code>local-rag/</code></summary>
 <div><code>├── .gitignore</code></div>
@@ -211,6 +212,7 @@ This interactive tree lists every tracked project file, excluding Git's internal
 <div><code>    └── test_retrieval.py</code></div>
 </details>
 </details>
+</div>
 
 ## Getting Started
 ### 1. Install Ollama
