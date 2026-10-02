@@ -1,42 +1,34 @@
 # Local Open RAG Platform (LORP)
-_Local‑first multi‑agent RAG platform built with Ollama, LangChain, LlamaIndex, and FAISS_
+_Local-first RAG prototype using Ollama, FAISS, and FastAPI_
 
 ---
 
 ## Overview
 
-Local Open RAG Platform (LORP) is a fully local, open‑source AI system designed to demonstrate modern enterprise AI platform engineering practices. It combines:
+LORP is an early-stage local retrieval-augmented generation (RAG) project. The implemented path uses:
 
-- Ollama for local LLM serving
-- LlamaIndex for ingestion, chunking, embeddings, and retrieval
-- FAISS for high‑performance vector search
-- LangChain for agent orchestration and tool execution
-- FastAPI for serving a clean API layer
-- Open WebUI for a ChatGPT‑style interface
+- Ollama for local chat-model inference and embeddings
+- Word-based chunking and FAISS CPU indexes for retrieval
+- A Python knowledge agent for grounded answers and source citations
+- FastAPI endpoints and a small browser UI
+- Optional Docker Compose services, including Open WebUI
 
-LORP is built as a realistic, production‑aligned starter project for hands‑on work with RAG, agents, and AI platform engineering.
+The project is a prototype, not a production-hardened or multi-agent platform. Framework integrations and features that are not implemented are identified as planned below.
 
 ---
 
 ## Goals
 
-LORP helps you learn and demonstrate:
+The current implementation demonstrates:
 
-- Local LLM serving and model abstraction
-- Document ingestion and semantic chunking
-- Embedding generation and vector indexing
-- Retrieval‑augmented generation (RAG)
-- Agent orchestration and tool use
-- API design for AI systems
-- Containerization and deployment patterns
-- Monitoring and evaluation foundations
-- Multi‑agent architecture design
+- Local model calls through Ollama
+- Basic text ingestion, fixed-size chunking, embedding, and FAISS indexing
+- Retrieval-augmented question answering with source citations
+- A small FastAPI API and command-line prompt loop
 
----
+Multi-agent orchestration, richer document ingestion, evaluation, monitoring, and deployment improvements remain planned work.
 
-## Architecture
-
-### Runtime Flow
+## Implemented Architecture
 
 ```mermaid
 flowchart LR
@@ -57,38 +49,40 @@ flowchart LR
     class E,F output;
 ```
 
-For the complete API, agent, retrieval, model, and CLI flow, see the [detailed runtime view](docs/lorp_runtime_flow.md).
+For the implemented API, agent, retrieval, model, and CLI paths, see the [detailed runtime view](docs/lorp_runtime_flow.md).
 
-### LlamaIndex – Retrieval Layer
+### Ingestion and Retrieval
 
-- Document loaders (PDF, DOCX, HTML, Markdown)
-- Preprocessing and semantic chunking
-- Embeddings (Ollama or SentenceTransformers)
-- FAISS vector store
-- Query engine with reranking
-- RAG evaluation (RAGAS / LlamaIndex eval suite)
+- The index-building path currently reads `.txt` and `.md` files.
+- Text is whitespace-normalized and split into fixed-size word chunks with overlap; chunking is not semantic.
+- Embeddings are generated through Ollama using `nomic-embed-text` by default.
+- Vectors are normalized and stored in a FAISS `IndexFlatIP` index using the CPU FAISS package.
+- Retrieval returns the top matching chunks; reranking and hybrid search are not implemented.
 
-### LangChain – Orchestration Layer
+The loader can discover PDF, DOCX, and HTML paths, but the index builder skips those formats. They are not yet supported end to end.
 
-- Agents
-- Tools (retrieval, web search, SQL, filesystem)
-- Multi‑step workflows
-- Routing between models
-- FastAPI service layer
+### Agent, API, and CLI
 
-### Ollama – Local LLM Server
+- The implemented `KnowledgeAgent` uses retrieved context to answer questions and includes source citations.
+- `src.prompt_flow` provides a command-line question loop.
+- FastAPI exposes `/health`, `/ready`, `/query`, and `/source` endpoints, plus a basic browser UI at `/`.
+- Query responses can include retrieval/generation timing and token metrics when supplied by Ollama.
 
-- Model inference
-- Embeddings
-- OpenAI‑compatible API
-- GPU acceleration
+### Optional Containers
 
-### Open WebUI – User Interface
+- Docker Compose defines Ollama, the API, and an Open WebUI container.
+- Open WebUI is included as a separate service; a project-specific RAG plugin or configured integration is not implemented.
+- GPU acceleration depends on the user's Ollama runtime and hardware; the project does not configure GPU FAISS.
 
-- Chat interface
-- File upload
-- Model switching
-- Custom RAG plugin
+### Planned Integrations
+
+- LangChain orchestration, multi-step workflows, and model routing
+- LlamaIndex integration, semantic chunking, and reranking
+- SentenceTransformers embeddings
+- End-to-end PDF, DOCX, and HTML ingestion
+- Functional retrieval, web search, SQL, and filesystem tools
+- Research, report, and orchestrator agents
+- A custom Open WebUI RAG integration
 
 ---
 
@@ -215,117 +209,115 @@ This interactive tree lists every tracked project file, excluding Git's internal
 </div>
 
 ## Getting Started
-### 1. Install Ollama
-Download from:
-https://ollama.com/download
+### 1. Install Ollama and pull models
 
-Pull recommended models:
+Install [Ollama](https://ollama.com/download), then pull a chat model and the default embedding model:
 
 ```bash
-ollama pull qwen2.5:14b
-ollama pull llama3.1:8b
-ollama pull gemma2:9b
+ollama pull qwen3.5:4b
+ollama pull nomic-embed-text
 ```
 
-### 2. Install Python dependencies
+The direct Python/API defaults use `qwen3.5:4b`. Docker Compose defaults `CHAT_MODEL` to `qwen2.5:14b`; pull that model instead or set `CHAT_MODEL` to another model available in Ollama.
+
+### 2. Install Python dependencies and build an index
+
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. Build your FAISS index
-```bash
 python src/ingestion/build_index.py
 ```
-The standard build indexes documents from `data/raw` and the project `README.md`.
 
-### 4. Start the API server
+The index command reads supported `.txt` and `.md` files from `data/raw` and also indexes the project `README.md`. It writes a FAISS index and metadata JSON under `data/indexes/`.
+
+### 3. Start the API server
+
 ```bash
 uvicorn src.api.server:app --reload
 ```
 
-### 5. (Optional) Start Open WebUI
-Point Open WebUI to the API endpoint you just started.
+The interactive CLI is also available:
+
+```bash
+python -m src.prompt_flow
+```
+
+### Optional: run with Docker Compose
+
+From the repository root, start the Ollama, API, and Open WebUI containers:
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+The Compose Ollama service has its own model volume and does not automatically pull models or build an index. Build the index with the direct Python setup first, then stop the host Ollama service before starting Compose because both use port `11434`. Pull the required models into the Compose Ollama container:
+
+```bash
+docker compose -f docker/docker-compose.yml exec ollama ollama pull qwen2.5:14b
+docker compose -f docker/docker-compose.yml exec ollama ollama pull nomic-embed-text
+```
+
+The API container reads the generated index from the mounted project data directory.
+
+### API endpoints
+
+- `GET /health` — process health
+- `GET /ready` — reports whether an index and model clients are configured
+- `POST /query` — accepts `{"question": "..."}` and returns an answer, sources, and available metrics
+- `GET /source?path=...` — serves a source file only when it belongs to the loaded index
 
 ---
 
-## Agents
-### Knowledge Agent (current)
-- RAG‑powered question answering
-- Source citation
-- Document summarization
-- Context‑aware responses
+## Implemented Features
 
-### Future Agents
-- Research Agent – multi‑step research workflows
-- Report Agent – structured report generation
-- Orchestrator Agent – routes tasks between agents
+- Knowledge-agent question answering over retrieved context
+- Source and chunk citations in agent answers
+- FAISS vector indexing and top-k retrieval
+- Ollama chat and embedding clients
+- FastAPI API and command-line entry points
+- Optional Docker Compose services for Ollama, the API, and Open WebUI
 
+The knowledge agent does not provide a separate document-summarization workflow. Open WebUI is included as a container; a project-specific RAG plugin or configured integration is not implemented.
 
-## Retrieval
-- LORP uses LlamaIndex + FAISS for retrieval:
-- Semantic chunking
-- Metadata‑rich document nodes
-- GPU‑accelerated vector search
-- Optional hybrid search and reranking
+## Not Yet Implemented
 
+- Semantic chunking, hybrid/BM25 search, and reranking
+- PDF, DOCX, and HTML indexing (the index builder currently supports `.txt` and `.md`)
+- LangChain and LlamaIndex integrations
+- SentenceTransformers embeddings
+- Functional research/report/orchestrator agents and implementations of the tool wrappers
+- A custom Open WebUI RAG integration
+- Automated RAG evaluation
+
+The document loader can discover PDF, DOCX, and HTML files, but the index-building pipeline currently skips those formats.
 
 ## Evaluation
-- RAG quality can be measured using:
-- RAGAS
-- LlamaIndex eval suite
-- DeepEval
 
-Metrics include:
-- Faithfulness
-- Context relevance
-- Answer correctness
-- Citation accuracy
-
+`src/eval/rag_eval.py` is a placeholder. RAGAS, LlamaIndex evaluation, DeepEval, and quality metrics such as faithfulness or answer correctness are not currently wired up.
 
 ## Deployment
-LORP includes Dockerfiles for:
-- Ollama
-- API server
-- Open WebUI
-And a `docker-compose.yml` for local orchestration.
 
+Dockerfiles and a Compose definition are provided for Ollama, the API, and Open WebUI. This is a local-development setup, not a production deployment: authentication, a production CORS policy, and a custom WebUI integration are not configured.
 
-## Monitoring (Optional)
-You can integrate:
-- Prometheus
-- Grafana
-- NVIDIA DCGM exporter
+## Monitoring
 
-To track:
-- GPU utilization
-- Token/sec
-- Latency
-- Memory usage
-- Vector DB performance
+The API can return retrieval/generation timing and Ollama token metrics with query responses. A Prometheus/Grafana stack, GPU/DCGM monitoring, and persistent metrics collection are not implemented.
 
+## Data and Security
 
-## Data & Security
-This repo intentionally excludes:
-
-- Raw documents
-- FAISS indexes
-- Models
-- Secrets
-
-See .gitignore for details.
-
+- The repository includes small sample files under `data/raw/`, `data/processed/`, and `data/indexed/`.
+- `.gitignore` excludes future local raw/processed data, generated index files under `data/indexes/`, GGUF model files, and `.env` secrets; it does not remove sample files already tracked in Git.
+- The API currently allows CORS requests from any origin and has no authentication. Do not expose it to untrusted networks without adding appropriate access controls.
 
 ## Roadmap
-- Add Research Agent
-- Add Report Agent
-- Add Orchestrator Agent
-- Add hybrid search (BM25 + FAISS)
-- Add RAG evaluation suite
-- Add monitoring stack
-- Add CI/CD (GitHub Actions)
-- Add cloud deployment option (Kubernetes)
+
+- Implement research, report, and orchestrator agents
+- Implement the planned tools and custom WebUI integration
+- Add semantic chunking, additional document formats, hybrid search, and reranking
+- Add a RAG evaluation suite and monitoring stack
+- Add CI/CD and evaluate production/cloud deployment options
 
 ---
 
-License
-GNU V3 License
+## License
+
+GNU General Public License v3.0. See [LICENSE](LICENSE).
