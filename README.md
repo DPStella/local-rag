@@ -94,6 +94,8 @@ For the complete API, agent, retrieval, model, and CLI flow, see the [detailed r
 
 ## Project Structure
 
+This diagram lists every tracked project file, excluding Git's internal metadata. Entries marked `planned` are placeholders or stubs, not active implementations.
+
 ```mermaid
 ---
 config:
@@ -111,53 +113,81 @@ config:
       descriptionColor: '#475569'
 ---
 treeView-beta
-└── 📦 local-enterprise-rag-agent/
+└── 📦 local-rag/
+    ├── .gitignore
+    ├── _config.yml
+    ├── LICENSE
+    ├── 📝 README.md
+    ├── requirements.txt
+    ├── _layouts/
+    │   └── default.html
+    ├── ⚙️ config/
+    │   ├── agents.yaml
+    │   ├── models.yaml
+    │   └── settings.yaml
+    ├── 💾 data/
+    │   ├── indexed/
+    │   │   ├── .gitkeep
+    │   │   └── FAISS.txt
+    │   ├── indexes/ ## planned: generated FAISS indexes are created here
+    │   │   └── .gitkeep
+    │   ├── processed/
+    │   │   ├── .gitkeep
+    │   │   └── test.csv
+    │   └── raw/
+    │       ├── .gitkeep
+    │       └── test.txt
     ├── 🐳 docker/
+    │   ├── api.Dockerfile
+    │   ├── docker-compose.yaml
     │   ├── docker-compose.yml
     │   ├── ollama.Dockerfile
-    │   ├── api.Dockerfile
     │   └── webui.Dockerfile
-    ├── ⚙️ config/
-    │   ├── settings.yaml
-    │   ├── models.yaml
-    │   └── agents.yaml
-    ├── 💾 data/
-    │   ├── raw/ ## raw documents, excluded from Git
-    │   ├── processed/ ## cleaned text, excluded from Git
-    │   └── indexes/ ## FAISS indexes, excluded from Git
-    ├── 💻 src/
+    ├── docs/
+    │   └── lorp_runtime_flow.md
+    ├── src/
+    │   ├── __init__.py
+    │   ├── prompt_flow.py
+    │   ├── 🤖 agents/
+    │   │   ├── __init__.py
+    │   │   ├── base_agent.py
+    │   │   ├── knowledge_agent.py
+    │   │   ├── report_agent.py ## planned: structured report agent
+    │   │   └── research_agent.py ## planned: multi-step research agent
+    │   ├── api/
+    │   │   ├── __init__.py
+    │   │   └── server.py
+    │   ├── eval/
+    │   │   ├── __init__.py
+    │   │   └── rag_eval.py ## planned: evaluation integration is a placeholder
     │   ├── ingestion/
+    │   │   ├── __init__.py
+    │   │   ├── build_index.py
     │   │   ├── loaders.py
-    │   │   ├── preprocess.py
-    │   │   └── build_index.py
-    │   ├── 🔎 retrieval/
+    │   │   └── preprocess.py
+    │   ├── llm/
+    │   │   ├── __init__.py
+    │   │   ├── embeddings.py
+    │   │   └── ollama_client.py
+    │   ├── retrieval/
+    │   │   ├── __init__.py
     │   │   ├── llamaindex_client.py
     │   │   └── retrievers.py
-    │   ├── llm/
-    │   │   ├── ollama_client.py
-    │   │   └── embeddings.py
-    │   ├── 🤖 agents/
-    │   │   ├── base_agent.py
-    │   │   ├── knowledge_agent.py ## first agent
-    │   │   ├── research_agent.py ## future
-    │   │   └── report_agent.py ## future
-    │   ├── 🧰 tools/
+    │   ├── 🧰 tools/ ## planned: tool implementations are currently stubs
+    │   │   ├── __init__.py
+    │   │   ├── file_tool.py
     │   │   ├── retrieval_tool.py
-    │   │   ├── web_search_tool.py
     │   │   ├── sql_tool.py
-    │   │   └── file_tool.py
-    │   ├── api/
-    │   │   └── server.py
-    │   ├── ui/
-    │   │   └── webui_integration.md
-    │   └── eval/
-    │       └── rag_eval.py
-    ├── 🧪 tests/
-    │   ├── test_ingestion.py
-    │   ├── test_retrieval.py
-    │   └── test_agent.py
-    ├── 🙈 .gitignore
-    └── 📝 README.md
+    │   │   └── web_search_tool.py
+    │   └── 🖥️ ui/
+    │       ├── .gitkeep
+    │       └── webui_integration.md ## planned: UI integration has notes only
+    └── 🧪 tests/
+        ├── test_agent.py
+        ├── test_api.py
+        ├── test_ingestion.py
+        ├── test_prompt_flow.py
+        └── test_retrieval.py
 ```
 
 ## Getting Started
