@@ -1,0 +1,13 @@
+theme: jekyll-theme-tactile
+
+title: Local Open RAG Platform (LORP)
+
+description: Naive RAG build using fully open-source materials meant to be run with a local model (ie. Ollama - Qwen3.5:4B)
+
+github:
+  public: true
+  is_project_page: true
+  repository_url: https://github.com/DPStella/local-rag
+  owner_url: https://github.com/DPStella
+
+mermaid: true
